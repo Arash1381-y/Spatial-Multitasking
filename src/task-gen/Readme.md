@@ -8,9 +8,9 @@ parameters must be set due to the number of cores.
 
 Each `Task` is modeled based on:
 
-1. $$ T_i(C) \text{ Indicates the Worst Execution time of task i}$$
-2. $$ P_i(C) \text{ Indicates the Power Consumption of task i}$$
-3. $$ E_i(C) \text{ Indicates teh Energy Consumption of task i} $$
+1. $T_i(C)$ Indicates the Worst Execution time of `Task i`
+2. $P_i(C)$ Indicates the Power Consumption of `Task i`
+3. $E_i(C)$ Indicates the Energy Consumption of `Task i`
 
 where `C` is the number of cores.
 
@@ -57,5 +57,14 @@ $$
 \text{Speed Up}= \frac{1}{(1 - p) + \frac{p}{C}}
 $$
 
+where $p$ is the parallel portion of the program and $C$ is the number of cores.
+
+### Power Consumption
+
+The power consumption of a many core system depends on may different factors but the basic modeling is as below:
+
+$$ P ~ C \times V^2 \times F $$
+
+Where C is the number of cores, V is the system voltage and F is the frequency of the system.
 
 
