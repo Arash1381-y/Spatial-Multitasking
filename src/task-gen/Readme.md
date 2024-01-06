@@ -67,4 +67,29 @@ $$ P ~ C \times V^2 \times F $$
 
 Where C is the number of cores, V is the system voltage and F is the frequency of the system.
 
+### Task Generating
 
+After modeling the tasks, we must be able to generate and sample different types of tasks for better test results.
+
+The **Task Generator** model relies on below arguments:
+
+1) `p : parallel portion` distribution: specify the potential of each task parallelization
+2) `WS: wort case execution time` distribution: specify the execution time of each task in single core
+3) `E: energy consumption` distribution: specify the energy consumption of tasks
+
+#### Multi Modal Distribution
+
+The `normal distribution` is not quite a good option for sampling. The reason is that there is no guarantee
+that most of the tasks are not simple or complex tasks. The better distribution can be the
+multi-modal distribution which is simply the concatenation of multiple normal distributions.
+
+In this case we can assume there exists 3 types of tasks:
+
+- simple tasks: can be done much faster
+
+- normal tasks: The execution time is not that fast nor slow
+
+- complex tasks: These tasks may need more time to compute in compression with previous types.
+
+<br></br>
+<img src="./../../resource/data-gen/Trimodal.png" alt="Alt text" title="Trimodal Distribution">
