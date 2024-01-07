@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-from src.scheduler.utils.plotter import TaskPlotter
-from src.scheduler.utils.task import Task, read_tasks
+from scheduler.utils.plotter import TaskPlotter
+from scheduler.utils.task import Task, read_tasks
 
 RunInfo = (float, float, int, int)
 

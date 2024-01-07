@@ -1,8 +1,8 @@
 import argparse
 from typing import List
 
-from src.scheduler.schedular import Schedular
-from src.scheduler.utils.task import Task
+from scheduler.schedular import Schedular
+from scheduler.utils.task import Task
 
 # Create an ArgumentParser object
 parser = argparse.ArgumentParser()
