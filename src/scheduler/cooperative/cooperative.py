@@ -1,7 +1,16 @@
+import argparse
 from typing import List
 
-from src.scheduler.Schedular import Schedular, RunInfo
-from src.utils.task import Task, read_tasks
+from src.scheduler.schedular import Schedular
+from src.scheduler.utils.task import Task
+
+# Create an ArgumentParser object
+parser = argparse.ArgumentParser()
+# Add arguments
+parser.add_argument('-ip', '--input-path', required=False, type=str, default='./src/tasks.csv',
+                    help='Path to input file')
+parser.add_argument('-op', '--output-path', required=False, type=str, default='./src/cooperative.png',
+                    help='Path to output file')
 
 
 class Cooperative_Scheduler(Schedular):
@@ -16,17 +25,19 @@ class Cooperative_Scheduler(Schedular):
         """
 
         timer = 0.0
-
         for index, task in enumerate(self.tasks):
             info = [timer, .0, self.core_num, index + 1]
             task_exe_time = task.exe_time(self.core_num)
-            self.plotter.plot_task(index, timer, timer + task_exe_time)
+            self.plotter.plot_interval(index, timer, timer + task_exe_time)
             timer += task_exe_time
             info[1] = timer
             self.run_intervals.append(tuple(info))
 
     def plot_schedule(self):
-        self.plotter.show()
+        self.plotter.stdout_show()
+
+    def plot_save(self, path):
+        self.plotter.save_fig(path)
 
     def log(self, path: str | None = None):
         log: str = ""
@@ -40,10 +51,16 @@ class Cooperative_Scheduler(Schedular):
 
         if path is None:
             print(log)
+        else:
+            with open(path, 'w') as f:
+                f.write(log)
 
 
 if __name__ == '__main__':
-    test = Cooperative_Scheduler(path="../../task-gen/tasks.csv")
+    args = parser.parse_args()
+    path = args.input_path
+    save = args.output_path
+    test = Cooperative_Scheduler(path=path)
     test.run()
-    test.plot_schedule()
+    test.plot_save(save)
     test.log()

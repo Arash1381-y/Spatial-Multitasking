@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-from src.utils.plotter import TaskPlotter
-from src.utils.task import Task, read_tasks
+from src.scheduler.utils.plotter import TaskPlotter
+from src.scheduler.utils.task import Task, read_tasks
 
 RunInfo = (float, float, int, int)
 
@@ -32,4 +32,16 @@ class Schedular(ABC):
 
     @abstractmethod
     def run(self):
+        pass
+
+    @abstractmethod
+    def plot_schedule(self):
+        pass
+
+    @abstractmethod
+    def plot_save(self, path):
+        pass
+
+    @abstractmethod
+    def log(self, path: str | None = None):
         pass
