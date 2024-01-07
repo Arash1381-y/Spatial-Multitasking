@@ -2,12 +2,13 @@ import argparse
 import csv
 
 import numpy as np
-from typing import Tuple
+
+from src.config import CORE_NUMBER
 
 # Create an ArgumentParser object
 parser = argparse.ArgumentParser()
 # Add arguments
-parser.add_argument('-o', '--output', type=str, default='tasks.csv', help='Path to output file')
+parser.add_argument('-o', '--output', type=str, default='./src/tasks.csv', help='Path to output file')
 
 parser.add_argument('-v', '--voltage', type=float, default=5, help='System Working Voltage')
 parser.add_argument('-f', '--frequency', type=float, default=7e8, help='System Frequency')
@@ -28,23 +29,22 @@ def get_exe(base_exe, core_n, p):
     return formatter(base_exe * (1.0 / speed_up))
 
 
-# Parse arguments
-args = parser.parse_args()
-
-# Access parsed arguments
-output_file_path = args.output
-voltage = args.voltage
-frequency = args.frequency
-time_scale = args.time_scale
-simple_task_n = args.simple_number
-normal_task_n = args.normal_number
-complex_task_n = args.complex_number
-total_task = simple_task_n + normal_task_n + complex_task_n
-max_p = args.max_parallel_portion
-core_number = 6  # TODO: remove magical number
-
-
 def gen_dummy():
+    # Parse arguments
+    args = parser.parse_args()
+
+    # Access parsed arguments
+    output_file_path = args.output
+    voltage = args.voltage
+    frequency = args.frequency
+    time_scale = args.time_scale
+    simple_task_n = args.simple_number
+    normal_task_n = args.normal_number
+    complex_task_n = args.complex_number
+    total_task = simple_task_n + normal_task_n + complex_task_n
+    max_p = args.max_parallel_portion
+    core_number = CORE_NUMBER
+
     interval_size = time_scale / 3  # Calculate the size of each interval
     interval_midpoints = [i * interval_size - interval_size / 2 for i in
                           range(1, 4)]  # Initialize a list to store midpoints
