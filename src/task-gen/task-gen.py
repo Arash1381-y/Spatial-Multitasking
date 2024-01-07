@@ -78,7 +78,7 @@ def gen_dummy():
         for task in range(total_task):
             # gen the row
             row = [parallel_portion_sample[task], exec_time_sample[task]]
-            for i in range(2, core_number):
+            for i in range(2, core_number + 1):
                 row.append(get_exe(row[1], i, parallel_portion_sample[task]))
 
             # dummy power, energy
