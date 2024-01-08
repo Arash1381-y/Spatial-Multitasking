@@ -51,6 +51,7 @@ $$
 \text{Imp} = \frac{\frac{\text{multicore exe time}}{\text{single core exe time}}}{\text{number of core}}
 $$
 
-for the following example, the `Imp` will be $ \frac{\frac{\text{19}}{\text{23}}}{\text{6}} = 0.13$ which indicates that
+for the following example, the `Imp` will be $` \frac{\frac{\text{19}}{\text{23}}}{\text{6}} = 0.13 `$ which indicates that
 there is not much improvement.
-Therefore, using multiple cores with cooperative algorithm can result a slight improvement but considerable cost!
+
+Utilizing multiple cores with a cooperative algorithm may yield a slight improvement in performance, yet it may incur significant costs when handling tasks that are not inherently parallel.
