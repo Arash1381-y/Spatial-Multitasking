@@ -3,12 +3,12 @@ import csv
 
 import numpy as np
 
-from src.config import CORE_NUMBER
+from config import CORE_NUMBER
 
 # Create an ArgumentParser object
 parser = argparse.ArgumentParser()
 # Add arguments
-parser.add_argument('-o', '--output', type=str, default='./src/tasks.csv', help='Path to output file')
+parser.add_argument('-o', '--output', type=str, default='./tasks.csv', help='Path to output file')
 
 parser.add_argument('-v', '--voltage', type=float, default=5, help='System Working Voltage')
 parser.add_argument('-f', '--frequency', type=float, default=7e8, help='System Frequency')
@@ -16,8 +16,10 @@ parser.add_argument('-ts', '--time-scale', type=int, default=15, help='Max unit 
 parser.add_argument('-sn', '--simple-number', required=True, type=int, help='Number of simple tasks to schedule')
 parser.add_argument('-nn', '--normal-number', required=True, type=int, help='Number of normal tasks to schedule')
 parser.add_argument('-cn', '--complex-number', required=True, type=int, help='Number of hard tasks to schedule')
-parser.add_argument('-mp', '--max-parallel-portion', type=float, default=0.9,
-                    help='Max possible parallel portion for a single task')
+parser.add_argument('-mp', '--most-parallel-portion', type=float, default=0.9,
+                    help='Most possible parallel portion for a single task')
+parser.add_argument('-lp', '--least-parallel-portion', type=float, default=0,
+                    help='Least possible parallel portion for a single task')
 
 
 def formatter(f: float):
@@ -42,7 +44,8 @@ def gen_dummy():
     normal_task_n = args.normal_number
     complex_task_n = args.complex_number
     total_task = simple_task_n + normal_task_n + complex_task_n
-    max_p = args.max_parallel_portion
+    max_p = args.most_parallel_portion
+    min_p = args.least_parallel_portion
     core_number = CORE_NUMBER
 
     interval_size = time_scale / 3  # Calculate the size of each interval
@@ -60,7 +63,7 @@ def gen_dummy():
     exec_time_sample = np.concatenate((simple_task_dist, normal_task_dist, complex_task_dist))
     np.random.shuffle(exec_time_sample)
 
-    parallel_portion_sample = [formatter(f) for f in np.random.rand(total_task) * max_p]
+    parallel_portion_sample = [formatter(f) for f in np.random.uniform(min_p, max_p, total_task)]
 
     # for now, lets ignore the power and energy
     base_name = ['exe', 'power', 'energy']
