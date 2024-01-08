@@ -10,7 +10,7 @@ RunInfo = (float, float, int, int)
 class Schedular(ABC):
 
     @abstractmethod
-    def __init__(self, path: str | None, tasks: List | None):
+    def __init__(self, path: str | None, tasks: List | None, core_num: int):
         self.tasks: List[Task] = []
 
         if path is None and tasks is None:
@@ -20,15 +20,15 @@ class Schedular(ABC):
         else:
             self.tasks = tasks
 
-        self.core_num = len(self.tasks[0].execution_time)
-        self.run_intervals = [RunInfo]
+        self.core_num = core_num
+        self.run_intervals: List[RunInfo] = []
 
         # get max exe time
         max_exe_time = 0
         for task in self.tasks:
             max_exe_time += task.execution_time[0]
 
-        self.plotter = TaskPlotter(max_exe_time, len(self.tasks))
+        self.plotter = TaskPlotter(max_exe_time, len(self.tasks), self.core_num)
 
     @abstractmethod
     def run(self):
