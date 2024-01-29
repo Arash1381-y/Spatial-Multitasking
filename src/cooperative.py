@@ -1,19 +1,17 @@
+from scheduler import Scheduler
 import argparse
 from typing import List
-
-from scheduler.schedular import Schedular
-from scheduler.utils.task import Task
+from task import Task
 
 # Create an ArgumentParser object
 parser = argparse.ArgumentParser()
 # Add arguments
-parser.add_argument('-ip', '--input-path', required=False, type=str, default='./tasks.csv',
+parser.add_argument('-ip', '--input-path', required=False, type=str, default='./tasks',
                     help='Path to input file')
 parser.add_argument('-op', '--output-path', required=False, type=str, default='./cooperative.png',
                     help='Path to output file')
 
-
-class Cooperative_Scheduler(Schedular):
+class CooperativeScheduler(Scheduler):
     def __init__(self, path: str | None = None, tasks: List[Task] | None = None, core_num: int = 1):
         super().__init__(path=path, tasks=tasks, core_num=core_num)
 
@@ -55,15 +53,12 @@ class Cooperative_Scheduler(Schedular):
         else:
             with open(path, 'w') as f:
                 f.write(log)
-
-
-
-
+                
 if __name__ == '__main__':
     args = parser.parse_args()
     path = args.input_path
     save = args.output_path
-    test = Cooperative_Scheduler(path=path, core_num=6)
+    test = CooperativeScheduler(path=path, core_num=3)
     test.run()
     test.plot_save(save)
     test.log()
