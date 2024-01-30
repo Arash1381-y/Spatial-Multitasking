@@ -23,17 +23,29 @@ class CooperativeScheduler(Scheduler):
 
         :return:
         """
-
         timer = 0.0
         for index, task in enumerate(self.tasks):
-            info = [timer, .0, self.core_num, index + 1]
+            info = [timer, .0, self.core_num, index + 1, task.get_speed_up(self.core_num)/self.core_num, task.get_energy(self.core_num)/self.core_num]
             task_exe_time = task.exe_time(self.core_num)
             for c in range(self.core_num):
                 self.plotter.plot_interval(index, c, timer, timer + task_exe_time, task.name)
             timer += task_exe_time
             info[1] = timer
             self.run_intervals.append(tuple(info))
-
+        return self.run_intervals
+    
+    def get_energy_uasage(self):
+        energy = 0
+        for interval in self.run_intervals:
+            energy += interval[-1]
+        return energy
+    
+    def get_make_span(self):
+        make_span = 0
+        make_span = max([interval[1] for interval in self.run_intervals])
+        return make_span
+            
+    
     def plot_schedule(self):
         self.plotter.stdout_show()
 

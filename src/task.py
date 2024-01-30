@@ -73,6 +73,7 @@ def read_tasks(directory_path):
         )
         index+=1
         tasks.append(task)
-
+    for task in tasks:
+        task.calculate_speed_up(6)
     return tasks
 

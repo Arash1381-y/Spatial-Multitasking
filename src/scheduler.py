@@ -44,3 +44,8 @@ class Scheduler(ABC):
     @abstractmethod
     def log(self, path: str | None = None):
         pass
+
+    def get_make_span(self):
+        make_span = 0
+        make_span = max([interval[1] for interval in self.run_intervals])
+        return make_span

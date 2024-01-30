@@ -98,7 +98,7 @@ class BestScheduler(Scheduler):
     def schedule_with_i_cores(self, task: Task, cores: List[Core]) -> List[Tuple]:
         run_intervals = []
         for core in cores:
-            info = [core.timer, .0, len(cores), (task.name, task.id), core.id, task.get_energy(len(cores))/len(cores)]
+            info = [core.timer, .0, len(cores), (task.name, task.id), core.id, task.get_speed_up(len(cores))/len(cores), task.get_energy(len(cores))/len(cores)]
             info[1] = core.run_task(task.exe_time(len(cores)))
             run_intervals.append(tuple(info))
             
@@ -129,11 +129,25 @@ class BestScheduler(Scheduler):
             with open(path, 'w') as f:
                 f.write(log)
 
+    def get_energy_uasage(self):
+        energy = 0
+        for interval in self.run_intervals:
+            energy += interval[-1]
+        return energy
+    
+    def get_average_speed_up(self):
+        speed_up = 0
+        for interval in self.run_intervals:
+            speed_up += interval[-2]
+        
+        return speed_up/len(self.tasks) 
+    
     def plot_schedule(self):
         self.plotter.stdout_show()
 
     def plot_save(self, path):
         self.plotter.save_fig(path)
+        
 
     def log(self, path: str | None = None):
         intervals = sorted(self.run_intervals, key=lambda info: info[1])
