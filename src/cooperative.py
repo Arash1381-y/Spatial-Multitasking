@@ -10,10 +10,12 @@ parser.add_argument('-ip', '--input-path', required=False, type=str, default='./
                     help='Path to input file')
 parser.add_argument('-op', '--output-path', required=False, type=str, default='./cooperative.png',
                     help='Path to output file')
+parser.add_argument('-c', '--cores', required=False, type=int, default=3,
+                    help='cores count')
 
 class CooperativeScheduler(Scheduler):
     def __init__(self, path: str | None = None, tasks: List[Task] | None = None, core_num: int = 1):
-        super().__init__(path=path, tasks=tasks, core_num=core_num)
+        super().__init__(path=path, tasks=tasks, core_num=core_num, method_name='cooperative')
 
     def run(self) -> None:
         """
@@ -27,7 +29,7 @@ class CooperativeScheduler(Scheduler):
             info = [timer, .0, self.core_num, index + 1]
             task_exe_time = task.exe_time(self.core_num)
             for c in range(self.core_num):
-                self.plotter.plot_interval(index, c, timer, timer + task_exe_time)
+                self.plotter.plot_interval(index, c, timer, timer + task_exe_time, task.name)
             timer += task_exe_time
             info[1] = timer
             self.run_intervals.append(tuple(info))
@@ -58,7 +60,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
     path = args.input_path
     save = args.output_path
-    test = CooperativeScheduler(path=path, core_num=3)
+    cores = args.cores
+    test = CooperativeScheduler(path=path, core_num=cores)
     test.run()
     test.plot_save(save)
     test.log()

@@ -6,9 +6,42 @@ from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 
 
+class ScatPlotter:
+    def __init__(self):
+        self.figure, self.ax = plt.subplots()
+        self.legend_labels = []
+
+    def plot(self, x, y, legend):
+        self.ax.plot(x, y, 'o', label=legend)
+
+
+
+        self.legend_labels.append(legend)
+
+    def set_axes_labels(self, xlabel, ylabel):
+        self.ax.set_xlabel(xlabel)
+        self.ax.set_ylabel(ylabel)
+
+    def set_axes_limits(self, xlim=None, ylim=None):
+        if xlim:
+            self.ax.set_xlim(xlim)
+        if ylim:
+            self.ax.set_ylim(ylim)
+
+    def set_title(self, title):
+        self.ax.set_title(title)
+
+    def set_grid(self, show_grid=True):
+        self.ax.grid(show_grid)
+
+    def save_plot(self, filename='plot.png', legend_loc='upper left'):
+        self.ax.legend(self.legend_labels, loc=legend_loc)
+        self.figure.savefig(filename)
+        plt.close()
+    
 class TaskPlotter:
 
-    def __init__(self, finish_time, n, c):
+    def __init__(self, finish_time, n, c, title):
         """
         create a subplots for `n` tasks and max finish time of `finish_time`
 
@@ -20,11 +53,11 @@ class TaskPlotter:
         self.fig, self.ax = plt.subplots(nrows=c)
         if type(self.ax) is Axes:
             self.ax = [self.ax]
-        self.__modify_plt_style(finish_time)
+        self.__modify_plt_style(finish_time, title)
         self.colors = []
         self.__set_task_colors(n)
 
-    def plot_interval(self, task_i: int, core_i: int, start_time: float, finish_time):
+    def plot_interval(self, task_i: int, core_i: int, start_time: float, finish_time, task_name):
         """
         plot an interval from `start_time` to `finish_time` which is responsible for executing
         task with id equals to `task_i`
@@ -42,7 +75,7 @@ class TaskPlotter:
         ax = self.ax[core_i]
         ax.fill_between([start_time, finish_time], 0, 1, color=self.colors[task_i])
         text_x = (start_time + finish_time) / 2
-        ax.text(text_x, 0.5, f'T {task_i + 1}', ha='center', va='top', fontsize=7, rotation='vertical')
+        ax.text(text_x, 0.5, f'{task_name}', ha='center', va='top', fontsize=5, rotation='horizontal')
 
         updated_ticks = np.append(self.ax[-1].get_xticks(), [start_time, finish_time])
         updated_labels = np.append(self.ax[-1].get_xticklabels(), [int(start_time), int(finish_time)])
@@ -58,7 +91,7 @@ class TaskPlotter:
 
         plt.savefig(path)
 
-    def __modify_plt_style(self, finish_time):
+    def __modify_plt_style(self, finish_time, title):
 
         for index, ax in enumerate(self.ax):
             ax.set_xlim(0, finish_time)
@@ -77,7 +110,7 @@ class TaskPlotter:
         self.ax[-1].set_xticklabels([])
 
         plt.xlabel('Time', fontsize=18)
-        plt.suptitle("Multitasking Scheduling")
+        plt.suptitle(title)
 
     def __set_task_colors(self, n):
         for i in range(n):

@@ -9,7 +9,7 @@ from task import Task, read_tasks
 class Scheduler(ABC):
 
     @abstractmethod
-    def __init__(self, path: str | None, tasks: List | None, core_num: int):
+    def __init__(self, path: str | None, tasks: List | None, core_num: int, method_name: str):
         self.tasks: List[Task] = []
 
         if path is None and tasks is None:
@@ -27,7 +27,7 @@ class Scheduler(ABC):
         for task in self.tasks:
             max_exe_time += task.exe_time(core_num)
 
-        self.plotter = TaskPlotter(max_exe_time, len(self.tasks), self.core_num)
+        self.plotter = TaskPlotter(max_exe_time, len(self.tasks), self.core_num, method_name)
 
     @abstractmethod
     def run(self):

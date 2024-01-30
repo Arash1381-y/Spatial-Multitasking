@@ -2,36 +2,26 @@ from scheduler import Scheduler
 import argparse
 from typing import List, Tuple
 from task import Task
+from core import Core
 import sys
 # Create an ArgumentParser object
 parser = argparse.ArgumentParser()
 # Add arguments
 parser.add_argument('-ip', '--input-path', required=False, type=str, default='./test',
                     help='Path to input file')
-parser.add_argument('-op', '--output-path', required=False, type=str, default='./cooperative.png',
+parser.add_argument('-op', '--output-path', required=False, type=str, default='./best.png',
                     help='Path to output file')
+parser.add_argument('-c', '--cores', required=False, type=int, default=3,
+                    help='cores count')
 
-class Core:
-    def __init__(self, id, core_count):
-        self.id = id
-        self.core_count = core_count
-        self.timer = 0.0
-    
-    def run_task(self, exe_time):
-        self.timer += exe_time
-        return self.timer
-    
-    
-    def reset(self):
-        self.timer = 0
         
         
 class BestScheduler(Scheduler):
     def __init__(self, path: str | None = None, tasks: List[Task] | None = None, core_num: int = 1, cores: List[Core] | None = None):
-        super().__init__(path=path, tasks=tasks, core_num=core_num)
+        super().__init__(path=path, tasks=tasks, core_num=core_num, method_name='best')
         self.cores = cores
     
-    def get_k_idle_cores(self, k):
+    def get_k_idle_cores(self, k: int) -> List[Core]:
         sorted_cores = sorted(self.cores, key=lambda core: core.timer)
         return sorted_cores[:k]
 
@@ -44,7 +34,10 @@ class BestScheduler(Scheduler):
         :return:
         """
         self.run_intervals = self.find_best_scheduling(self.tasks, True)
-        
+        intervals = sorted(self.run_intervals, key=lambda info: info[1])
+
+        for interval in intervals:
+            self.plotter.plot_interval(int(interval[3][1]), interval[4], interval[0], interval[1], interval[3][0])
         
     
     
@@ -57,15 +50,21 @@ class BestScheduler(Scheduler):
             one = max([item[1] for item in intervals1])
             two = max([item[1] for item in intervals2])
             if one == two:
-                pass
+                energy_one = sum(item[-1] for item in intervals1)
+                energy_two = sum(item[-1] for item in intervals2)
+                if energy_one < energy_two:
+                    return intervals1
+                elif energy_two < energy_one:
+                    return intervals2
+                else:
+                    # TODO compare powers
+                    pass
             
             if one < two:
                 return intervals1
-            
-            
             return intervals2  
 
-    def find_best_scheduling(self, tasks, flag):
+    def find_best_scheduling(self, tasks: List[Task], flag: bool) -> List[Tuple]:
         if not tasks:
             return [] 
         timer = 0.0
@@ -86,21 +85,30 @@ class BestScheduler(Scheduler):
                     self.reset_cores(self.cores)
                 else:
                     self.revert_cores(task, cores_to_use)
+
+            # if flag:
+            #         print(index, tasks[index].name)
+            #         self.log_intervals(intervals)
+            #         print("---------------- next round -----------")
+        # print(f"alive")
+
         return run_intervals        
                 
             
-    def schedule_with_i_cores(self, task: Task, cores: List[Core]):
+    def schedule_with_i_cores(self, task: Task, cores: List[Core]) -> List[Tuple]:
         run_intervals = []
         for core in cores:
-            info = [core.timer, .0, len(cores), task.name, core.id]
+            info = [core.timer, .0, len(cores), (task.name, task.id), core.id, task.get_energy(len(cores))/len(cores)]
             info[1] = core.run_task(task.exe_time(len(cores)))
             run_intervals.append(tuple(info))
             
         return run_intervals
-    def revert_cores(self, task: Task, cores: List[Core]):
+    
+    def revert_cores(self, task: Task, cores: List[Core]) -> None:
         for core in cores:
             core.timer -= task.exe_time(len(cores))
-    def reset_cores(self, cores):
+    
+    def reset_cores(self, cores : List[Core]) -> None:
         for core in cores:
             core.reset()
         
@@ -135,7 +143,7 @@ class BestScheduler(Scheduler):
             start_time: float = interval[0]
             finish_time: float = interval[1]
             log += f"From {start_time:.2f} To {finish_time:.2f}:\n"
-            log += f"RUN Task {interval[3]} With {interval[2]:.2f} Cores: Core id {interval[4]} \n"
+            log += f"RUN Task {interval[3][0]}({interval[3][1]}) With {interval[2]:.2f} Cores: Core id {interval[4]} \n"
             log += ("-" * 20 + "\n")
 
         if path is None:
@@ -149,9 +157,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
     path = args.input_path
     save = args.output_path
-    core_num = 6
+    core_num = args.cores
     cores = [Core(i, core_num) for i in range(core_num)]
     test = BestScheduler(path=path, core_num=core_num, cores=cores)
     test.run()
-    # test.plot_save(save)
+    test.plot_save(save)
     test.log()
