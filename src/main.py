@@ -25,7 +25,7 @@ def get_n_member_combinations(input_list, n):
 
 
 def tasks_to_str(tasks, alg, cores):
-    
+    # print(tasks)
     length = len(tasks)
     name = f"/scheduling/{cores}_{length}_{alg}"    
     for task in tasks:
@@ -39,6 +39,8 @@ def evaluate_alg(tasks_combs, core_num, save_path, alg_func):
     make_span_avg = 0
     for item in tasks_combs:
         print(item)
+        if alg_func == profile_schedule:
+            print('profile', item)
         data = alg_func(item, core_num, save_path)
         energy_sum += data[0]
         make_span_avg += data[1]
@@ -64,7 +66,6 @@ def best_schedule(tasks, core_num, save_path):
     return best.get_energy_uasage(), best.get_make_span()
 
 def profile_schedule(tasks, core_num, save_path):
-    print(tasks)
     cores = [Core(i, core_num) for i in range(core_num)]
     profile = ProfileScheduler(tasks=tasks, core_num=core_num, cores=cores)    
     profile.run()
