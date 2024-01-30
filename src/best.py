@@ -4,6 +4,7 @@ from typing import List, Tuple
 from task import Task
 from core import Core
 import sys
+import time
 # Create an ArgumentParser object
 parser = argparse.ArgumentParser()
 # Add arguments
@@ -33,7 +34,13 @@ class BestScheduler(Scheduler):
 
         :return:
         """
+        start_time = time.time_ns()
+        
         self.run_intervals = self.find_best_scheduling(self.tasks, True)
+                
+        end_time = time.time_ns()
+        self.scheduling_time = (end_time - start_time)/(10**6)
+        
         intervals = sorted(self.run_intervals, key=lambda info: info[1])
 
         for interval in intervals:
@@ -56,9 +63,7 @@ class BestScheduler(Scheduler):
                     return intervals1
                 elif energy_two < energy_one:
                     return intervals2
-                else:
-                    # TODO compare powers
-                    pass
+                
             
             if one < two:
                 return intervals1

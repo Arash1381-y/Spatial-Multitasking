@@ -12,7 +12,7 @@ class ScatPlotter:
         self.legend_labels = []
 
     def plot(self, x, y, legend):
-        self.ax.plot(x, y, 'o', label=legend)
+        self.ax.plot(x, y, '-o', label=legend)
 
 
 
@@ -35,7 +35,8 @@ class ScatPlotter:
         self.ax.grid(show_grid)
 
     def save_plot(self, filename='plot.png', legend_loc='upper left'):
-        self.ax.legend(self.legend_labels, loc=legend_loc)
+        self.ax.legend(self.legend_labels, loc='upper left', bbox_to_anchor=(0.8,0.8))
+        self.set_grid()
         self.figure.savefig(filename)
         plt.close()
     
@@ -55,7 +56,7 @@ class TaskPlotter:
             self.ax = [self.ax]
         self.__modify_plt_style(finish_time, title)
         self.colors = []
-        self.__set_task_colors(n)
+        self.__set_task_colors(8)
 
     def plot_interval(self, task_i: int, core_i: int, start_time: float, finish_time, task_name):
         """
@@ -78,9 +79,9 @@ class TaskPlotter:
         ax.text(text_x, 0.5, f'{task_name}', ha='center', va='top', fontsize=5, rotation='horizontal')
 
         updated_ticks = np.append(self.ax[-1].get_xticks(), [start_time, finish_time])
-        updated_labels = np.append(self.ax[-1].get_xticklabels(), [int(start_time), int(finish_time)])
+        updated_labels = np.append(self.ax[-1].get_xticklabels(), [start_time, finish_time])
         self.ax[-1].set_xticks(updated_ticks)
-        self.ax[-1].set_xticklabels(updated_labels)
+        self.ax[-1].set_xticklabels(updated_labels, rotation='vertical')
 
     def stdout_show(self):
         plt.show()
@@ -90,6 +91,7 @@ class TaskPlotter:
             raise ValueError(f"path is not valid : {path}")
 
         plt.savefig(path)
+        plt.close()
 
     def __modify_plt_style(self, finish_time, title):
 
@@ -98,7 +100,7 @@ class TaskPlotter:
             ax.set_ybound(lower=0, upper=2)
             ax.set_ylim(0, 1)
             ax.tick_params(axis='x', bottom=False, top=False, direction='inout')
-            ax.set_xticklabels([], fontsize=8)
+            ax.set_xticklabels([], fontsize=6)
             ax.yaxis.set_tick_params(labelleft=False, which="both", left=False, right=False)
             ax.spines['left'].set_visible(False)
             ax.spines['right'].set_visible(False)

@@ -2,7 +2,7 @@ from scheduler import Scheduler
 import argparse
 from typing import List
 from task import Task
-
+import time
 # Create an ArgumentParser object
 parser = argparse.ArgumentParser()
 # Add arguments
@@ -23,15 +23,24 @@ class CooperativeScheduler(Scheduler):
 
         :return:
         """
+        start_time = time.time_ns()
         timer = 0.0
         for index, task in enumerate(self.tasks):
-            info = [timer, .0, self.core_num, index + 1, task.get_speed_up(self.core_num)/self.core_num, task.get_energy(self.core_num)/self.core_num]
             task_exe_time = task.exe_time(self.core_num)
+            end_time = timer + task_exe_time
+
             for c in range(self.core_num):
-                self.plotter.plot_interval(index, c, timer, timer + task_exe_time, task.name)
+                info = [timer, .0, self.core_num, (task.name, task.id), c, task.get_speed_up(self.core_num)/self.core_num, task.get_energy(self.core_num)/self.core_num]
+                info[1] = end_time
+                self.run_intervals.append(tuple(info))
             timer += task_exe_time
-            info[1] = timer
-            self.run_intervals.append(tuple(info))
+                
+        end_time = time.time_ns()
+        self.scheduling_time = (end_time - start_time)/(10**6)
+        intervals = sorted(self.run_intervals, key=lambda info: info[1])
+        for interval in intervals:
+            self.plotter.plot_interval(int(interval[3][1]), interval[4], interval[0], interval[1], interval[3][0])
+        
         return self.run_intervals
     
     def get_energy_uasage(self):

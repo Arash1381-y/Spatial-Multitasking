@@ -3,6 +3,7 @@ import argparse
 from typing import List
 from task import Task
 from core import Core
+import time
 # Create an ArgumentParser object
 parser = argparse.ArgumentParser()
 # Add arguments
@@ -35,10 +36,13 @@ class ProfileScheduler(Scheduler):
 
     def run(self) -> None:
         """
-        dedicate all available core to each tasks
+        maximize target function
 
         :return:
         """
+        start_time = time.time_ns()
+
+        self.scheduling_time = 0.0
         tasks = self.tasks[:]
         free_cores = self.cores
         value, config = self.maximize_profiles(free_cores, tasks, len(free_cores))
@@ -63,7 +67,8 @@ class ProfileScheduler(Scheduler):
                     self.run_intervals.append(tuple(info))
             tasks.remove(task)
         
-        
+        end_time = time.time_ns()
+        self.scheduling_time = (end_time - start_time)/10**6
         intervals = sorted(self.run_intervals, key=lambda info: info[1])
         for interval in intervals:
             self.plotter.plot_interval(int(interval[3][1]), interval[4], interval[0], interval[1], interval[3][0])
@@ -105,7 +110,7 @@ class ProfileScheduler(Scheduler):
             speed_up += interval[-2]
         
         return speed_up/len(self.tasks) 
-    
+
     def plot_schedule(self):
         self.plotter.stdout_show()
 

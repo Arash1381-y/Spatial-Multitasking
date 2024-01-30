@@ -11,6 +11,7 @@ class Scheduler(ABC):
     @abstractmethod
     def __init__(self, path: str | None, tasks: List | None, core_num: int, method_name: str):
         self.tasks: List[Task] = []
+        self.scheduling_time = 0.0
 
         if path is None and tasks is None:
             raise RuntimeError("No data is given for schedular")
@@ -25,7 +26,7 @@ class Scheduler(ABC):
         # get max exe time
         max_exe_time = 0
         for task in self.tasks:
-            max_exe_time += task.exe_time(core_num)
+            max_exe_time += task.exe_time(1)
 
         self.plotter = TaskPlotter(max_exe_time, len(self.tasks), self.core_num, method_name)
 
@@ -49,3 +50,5 @@ class Scheduler(ABC):
         make_span = 0
         make_span = max([interval[1] for interval in self.run_intervals])
         return make_span
+    def get_scheduling_time(self):
+        return self.scheduling_time

@@ -27,7 +27,7 @@ def get_n_member_combinations(input_list, n):
 def tasks_to_str(tasks, alg, cores):
     # print(tasks)
     length = len(tasks)
-    name = f"/scheduling/{cores}_{length}_{alg}"    
+    name = f"/scheduling/{cores}/{cores}_{length}_{alg}"    
     for task in tasks:
         name += f"_{task.name}"
     name += f".png"
@@ -37,43 +37,40 @@ def tasks_to_str(tasks, alg, cores):
 def evaluate_alg(tasks_combs, core_num, save_path, alg_func):
     energy_sum = 0
     make_span_avg = 0
+    scheduling_time_avg = 0
     for item in tasks_combs:
-        print(item)
-        if alg_func == profile_schedule:
-            print('profile', item)
         data = alg_func(item, core_num, save_path)
         energy_sum += data[0]
         make_span_avg += data[1]
+        scheduling_time_avg += data[2]
     make_span_avg /= len(tasks_combs)
-    return energy_sum, make_span_avg
+    scheduling_time_avg /= len(tasks_combs)
+    energy_avg = energy_sum / len(tasks_combs)
+    return energy_avg, make_span_avg, scheduling_time_avg
 
 def coop_schedule(tasks, core_num, save_path):
     coop = CooperativeScheduler(tasks=tasks, core_num=core_num)
     coop.run()
     name = tasks_to_str(tasks, 'coop', core_num)
-    print(name)
     coop.plot_save(save_path + f"{name}")
-    return coop.get_energy_uasage(), coop.get_make_span()
+    return coop.get_energy_uasage(), coop.get_make_span(), coop.get_scheduling_time()
 
 def best_schedule(tasks, core_num, save_path):
     cores = [Core(i, core_num) for i in range(core_num)]
     best = BestScheduler(tasks=tasks, core_num=core_num, cores=cores)
     best_data = best.run()
     name = tasks_to_str(tasks, 'best', core_num)
-    print(name)
 
     best.plot_save(save_path + f"{name}")
-    return best.get_energy_uasage(), best.get_make_span()
+    return best.get_energy_uasage(), best.get_make_span(), best.get_scheduling_time()
 
 def profile_schedule(tasks, core_num, save_path):
     cores = [Core(i, core_num) for i in range(core_num)]
     profile = ProfileScheduler(tasks=tasks, core_num=core_num, cores=cores)    
     profile.run()
     name = tasks_to_str(tasks, 'profile', core_num)
-    print(name)
-
     profile.plot_save(save_path + f"{name}")
-    return profile.get_energy_uasage(), profile.get_make_span()
+    return profile.get_energy_uasage(), profile.get_make_span(), profile.get_scheduling_time()
 
 
 def main():
@@ -85,29 +82,38 @@ def main():
     algs = {'cooperative' : coop_schedule, 'profile': profile_schedule, 'best': best_schedule}
     energy_data = {'cooperative':[], 'profile':[], 'best':[]}
     avg_speedup_data = {'cooperative':[], 'profile':[], 'best':[]}
-
+    avg_scheduling_time_data = {'cooperative':[], 'profile':[], 'best':[]}
     # 2 member:
     task_count = [2, 3, 4]
     for count in task_count: 
-        combs = get_n_member_combinations(tasks, count)
+        combinations = get_n_member_combinations(tasks, count)
         for item in algs:
-            energy_sum, make_span = evaluate_alg(combs, cores, save_path, algs[item])
+            energy_sum, make_span, scheduling_time = evaluate_alg(combinations, cores, save_path, algs[item])
             energy_data[item].append(energy_sum)
             avg_speedup_data[item].append(make_span)
+            avg_scheduling_time_data[item].append(scheduling_time)
     
     energy_plotter = ScatPlotter()
     for data in energy_data:
         energy_plotter.plot(task_count, energy_data[data], legend=data)
     energy_plotter.set_axes_labels("Task Count", "Energy Usage")
-    energy_plotter.save_plot(save_path+"/energy_plot.png")
+    energy_plotter.save_plot(save_path+f"/{cores}_energy_plot.png")
     
     base = 'cooperative'
     speedup_plotter = ScatPlotter()
     for data in avg_speedup_data:
-        result = [x / y for x, y in zip(avg_speedup_data[data], avg_speedup_data[base])]    
+        result = [y/x for x, y in zip(avg_speedup_data[data], avg_speedup_data[base])]    
         speedup_plotter.plot(task_count, result, legend=data)
     speedup_plotter.set_axes_labels("Task Count", "Average Speedup")
-    speedup_plotter.save_plot(save_path+"/avg_speedup_plot.png")
+    speedup_plotter.save_plot(save_path+f"/{cores}_avg_speedup_plot.png")
+    
+    speedup_plotter = ScatPlotter()
+    for data in avg_scheduling_time_data:
+        speedup_plotter.plot(task_count, avg_scheduling_time_data[data], legend=data)
+    speedup_plotter.set_axes_labels("Task Count", "Avg Scheduling Time(ms)")
+    speedup_plotter.save_plot(save_path+f"/{cores}_scheduling_time_plot.png")
+
+
 
 if __name__ == "__main__":
     main()
