@@ -11,11 +11,6 @@
 ### Sharif University Of Technology
 #### Fall 2024
 
-<p align="center">
-    <img src="images/logo2.png" width="20%">
-</p>
-
-![Alt text](image.png)
 # Scheduling
 
 The goal of the schedular is to minimize the Makespan.
